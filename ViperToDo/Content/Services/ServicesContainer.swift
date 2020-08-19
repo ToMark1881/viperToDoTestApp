@@ -10,10 +10,11 @@ import Foundation
 
 class ServicesContainer {
     
-    var listService: ListAPIInterface?
+    var listService: ListService?
     
     init() {
-        self.listService = ListAPIService()
+        self.listService = ListService()
+        self.listService?.api = ListAPIService()
     }
     
 }

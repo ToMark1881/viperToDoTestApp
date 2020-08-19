@@ -12,7 +12,7 @@ import Firebase
 
 protocol ListAPIInterface: class {
     
-    func getList(completed: @escaping (([Task]) -> Void), failure: @escaping((Error?)) -> Void)
+    func getList(completed: @escaping ((Any) -> Void), failure: @escaping((Error?)) -> Void)
     
     func sendTask(date: Date, text: String, completed: @escaping (() -> Void), failure: @escaping((Error?)) -> Void)
     
@@ -28,21 +28,14 @@ class ListAPIService: ListAPIInterface {
     }
     
     
-    func getList(completed: @escaping (([Task]) -> Void), failure: @escaping((Error?)) -> Void) {
-        Database.database().reference().child("tasks").observeSingleEvent(of: .value) { (snap) in
-            if let list = snap.value as? [String: Dictionary<String, AnyObject>] {
-                self.parseList(list, completed: completed)
+    func getList(completed: @escaping ((Any) -> Void), failure: @escaping((Error?)) -> Void) {
+        Database.database().reference().child("tasks").observeSingleEvent(of: .value, with: { (snap) in
+            if let snapshot = snap.value {
+                completed(snapshot)
             }
+        }) { (err) in
+            failure(err)
         }
-    }
-    
-    fileprivate func parseList(_ list: [String: Dictionary<String, AnyObject>], completed: @escaping(([Task]) -> Void)) {
-        var tasks = [Task]()
-        for item in list {
-            let task = Task(item.value)
-            tasks.append(task)
-        }
-        completed(tasks)
     }
     
     
